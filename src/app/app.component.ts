@@ -1,18 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { BibliothecaireService } from './api/bibliothecaire.service';
+import { Router } from "@angular/router";
+import { MenuController } from '@ionic/angular';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
-export class AppComponent {
-  public appPages = [
-    { title: 'Inbox', url: '/folder/inbox', icon: 'mail' },
-    { title: 'Outbox', url: '/folder/outbox', icon: 'paper-plane' },
-    { title: 'Favorites', url: '/folder/favorites', icon: 'heart' },
-    { title: 'Archived', url: '/folder/archived', icon: 'archive' },
-    { title: 'Trash', url: '/folder/trash', icon: 'trash' },
-    { title: 'Spam', url: '/folder/spam', icon: 'warning' },
+export class AppComponent implements OnInit {
+
+  public menuHome = [
+    { title: 'Accueil', url: '/home' },
+    { title: 'Rechercher', url: '/rechercher' },
+    { title: 'Contact', url: '/contact'},
+    { title: 'Se connecter', url: '/login'}
   ];
-  public labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-  constructor() {}
+
+  appPages$ = this.bibliothecaireService.pages$;
+
+  seDeconnecte$ = this.bibliothecaireService.seDeconnecte$;
+
+  constructor(private bibliothecaireService: BibliothecaireService,
+              public menuCtrl: MenuController,
+              private router: Router) {}
+
+  ngOnInit() {
+    this.bibliothecaireService.pages$.next(this.menuHome);
+  }
+
+  seDeconnecter() {
+    sessionStorage.removeItem('biblio');
+    this.bibliothecaireService.seDeconnecte$.next(false);
+    this.bibliothecaireService.pages$.next(this.menuHome);
+   // window.location.replace(this.bibliothecaireService.frontUrl);
+    this.menuCtrl.close();
+    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/home');
+
+  }
+
 }
